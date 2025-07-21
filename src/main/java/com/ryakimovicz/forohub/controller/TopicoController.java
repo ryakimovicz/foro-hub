@@ -22,6 +22,7 @@ import com.ryakimovicz.forohub.topico.DatosDetalleTopico;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import com.ryakimovicz.forohub.topico.DatosActualizacionTopico;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 @RestController
 @RequestMapping("/topicos")
@@ -65,5 +66,15 @@ public class TopicoController {
         var topico = topicoRepository.getReferenceById(id);
         topico.actualizarDatos(datos);
         return ResponseEntity.ok(new DatosDetalleTopico(topico));
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity eliminarTopico(@PathVariable Long id) {
+        var topico = topicoRepository.findById(id);
+        if (topico.isPresent()) {
+            topicoRepository.deleteById(id);
+        }
+        return ResponseEntity.noContent().build();
     }
 }
