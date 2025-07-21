@@ -3,12 +3,17 @@ package com.ryakimovicz.forohub.controller;
 import com.ryakimovicz.forohub.repository.CursoRepository;
 import com.ryakimovicz.forohub.repository.TopicoRepository;
 import com.ryakimovicz.forohub.repository.UsuarioRepository;
+import com.ryakimovicz.forohub.topico.DatosListadoTopico; // <-- Import para tu DTO
 import com.ryakimovicz.forohub.topico.DatosRegistroTopico;
 import com.ryakimovicz.forohub.topico.Topico;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page; // <-- Import para Page
+import org.springframework.data.domain.Pageable; // <-- Import para Pageable
+import org.springframework.data.web.PageableDefault; // <-- Import para PageableDefault
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping; // <-- Import para GetMapping
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,19 +33,19 @@ public class TopicoController {
     @PostMapping
     @Transactional
     public ResponseEntity registrarTopico(@RequestBody @jakarta.validation.Valid DatosRegistroTopico datos) {
-        // Validación de duplicados
         if (topicoRepository.existsByTituloAndMensaje(datos.titulo(), datos.mensaje())) {
             throw new ValidationException("Ya existe un tópico con el mismo título y mensaje.");
         }
-
-        // Buscamos el autor y el curso
         var autor = usuarioRepository.findById(datos.autorId()).orElseThrow(() -> new ValidationException("No se encontró el autor."));
         var curso = cursoRepository.findById(datos.cursoId()).orElseThrow(() -> new ValidationException("No se encontró el curso."));
-
-        // Creamos y guardamos el tópico
         var topico = new Topico(datos, autor, curso);
         topicoRepository.save(topico);
+        return ResponseEntity.ok(topico);
+    }
 
-        return ResponseEntity.ok(topico); // Devuelve el tópico creado con código 200 OK
+    @GetMapping
+    public ResponseEntity<Page<DatosListadoTopico>> listarTopicos(@PageableDefault(size = 10, sort = "fechaCreacion") Pageable paginacion) {
+        var page = topicoRepository.findAll(paginacion).map(DatosListadoTopico::new);
+        return ResponseEntity.ok(page);
     }
 }
