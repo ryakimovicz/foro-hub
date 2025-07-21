@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.ryakimovicz.forohub.topico.DatosDetalleTopico;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/topicos")
@@ -47,5 +49,11 @@ public class TopicoController {
     public ResponseEntity<Page<DatosListadoTopico>> listarTopicos(@PageableDefault(size = 10, sort = "fechaCreacion") Pageable paginacion) {
         var page = topicoRepository.findAll(paginacion).map(DatosListadoTopico::new);
         return ResponseEntity.ok(page);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DatosDetalleTopico> detallarTopico(@PathVariable Long id) {
+        var topico = topicoRepository.getReferenceById(id);
+        return ResponseEntity.ok(new DatosDetalleTopico(topico));
     }
 }
