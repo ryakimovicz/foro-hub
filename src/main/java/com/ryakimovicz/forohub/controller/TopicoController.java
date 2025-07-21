@@ -3,9 +3,7 @@ package com.ryakimovicz.forohub.controller;
 import com.ryakimovicz.forohub.repository.CursoRepository;
 import com.ryakimovicz.forohub.repository.TopicoRepository;
 import com.ryakimovicz.forohub.repository.UsuarioRepository;
-import com.ryakimovicz.forohub.topico.DatosListadoTopico; // <-- Import para tu DTO
-import com.ryakimovicz.forohub.topico.DatosRegistroTopico;
-import com.ryakimovicz.forohub.topico.Topico;
+import com.ryakimovicz.forohub.topico.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.ryakimovicz.forohub.topico.DatosDetalleTopico;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
-import com.ryakimovicz.forohub.topico.DatosActualizacionTopico;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 @RestController
@@ -45,7 +41,7 @@ public class TopicoController {
         var curso = cursoRepository.findById(datos.cursoId()).orElseThrow(() -> new ValidationException("No se encontró el curso."));
         var topico = new Topico(datos, autor, curso);
         topicoRepository.save(topico);
-        return ResponseEntity.ok(topico);
+        return ResponseEntity.ok(new DatosRespuestaTopico(topico));
     }
 
     @GetMapping

@@ -6,6 +6,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.ryakimovicz.forohub.usuario.Usuario;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -33,5 +34,23 @@ public class TokenService {
 
     private Instant generarFechaExpiracion() {
         return LocalDateTime.now().plusHours(1).toInstant(ZoneOffset.of("-03:00"));
+    }
+
+    public String getSubject(String tokenJWT) {
+        if (tokenJWT == null) {
+            throw new RuntimeException("Token nulo");
+        }
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            return JWT.require(algorithm)
+                    .withIssuer("Foro Hub")
+                    .build()
+                    .verify(tokenJWT)
+                    .getSubject();
+        } catch (JWTVerificationException exception) {
+            // Aquí puedes registrar el error si lo deseas.
+            // System.err.println("Error al verificar el token: " + exception.getMessage());
+            return null; // Devuelve nulo si la verificación falla
+        }
     }
 }
