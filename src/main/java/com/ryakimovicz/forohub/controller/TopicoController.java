@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.ryakimovicz.forohub.topico.DatosDetalleTopico;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import com.ryakimovicz.forohub.topico.DatosActualizacionTopico;
 
 @RestController
 @RequestMapping("/topicos")
@@ -54,6 +56,14 @@ public class TopicoController {
     @GetMapping("/{id}")
     public ResponseEntity<DatosDetalleTopico> detallarTopico(@PathVariable Long id) {
         var topico = topicoRepository.getReferenceById(id);
+        return ResponseEntity.ok(new DatosDetalleTopico(topico));
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<DatosDetalleTopico> actualizarTopico(@PathVariable Long id, @RequestBody @jakarta.validation.Valid DatosActualizacionTopico datos) {
+        var topico = topicoRepository.getReferenceById(id);
+        topico.actualizarDatos(datos);
         return ResponseEntity.ok(new DatosDetalleTopico(topico));
     }
 }
